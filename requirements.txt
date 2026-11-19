@@ -1,0 +1,17 @@
+# Telegram-бот приёма заявок: зависимости
+# Python 3.11+
+
+aiogram>=3.13,<4.0
+pydantic>=2.7,<3.0
+pydantic-settings>=2.4,<3.0
+
+# Асинхронная БД
+SQLAlchemy[asyncio]>=2.0.30,<3.0
+aiosqlite>=0.20,<1.0
+
+# Google Таблицы
+gspread>=6.0,<7.0
+google-auth>=2.29,<3.0
+
+# База часовых поясов (нужна на Windows / в slim-образах без tzdata)
+tzdata>=2024.1

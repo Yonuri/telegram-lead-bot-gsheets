@@ -1,0 +1,19 @@
+services:
+  bot:
+    build: .
+    container_name: orders-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Внутри контейнера БД всегда лежит в примонтированном томе
+      DATABASE_URL: sqlite+aiosqlite:///data/bot.db
+    volumes:
+      - ./data:/app/data
+      # JSON-ключ сервисного аккаунта читается только на чтение
+      - ./credentials.json:/app/credentials.json:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -1,0 +1,734 @@
+<title>Запуск Telegram-бота</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+/* ============================================================
+   План: одноколоночный документ-инструкция.
+   Палитра — холодный нейтральный с синим акцентом (Telegram),
+   без градиентов. Типографика: Inter для текста, JetBrains Mono
+   для команд, путей и значений — их удобно копировать.
+   ============================================================ */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-sunken: #eef1f5;
+  --fg: #15181d;
+  --fg-muted: #5c6572;
+  --fg-faint: #8a929e;
+  --accent: #1f6feb;
+  --accent-soft: #e7f0fe;
+  --border: #dfe3e9;
+  --border-strong: #c8cfd8;
+  --code-bg: #f0f2f6;
+  --code-fg: #1c2430;
+  --ok: #17694a;
+  --ok-soft: #e3f3ec;
+  --warn: #8a5a00;
+  --warn-soft: #fbf1dc;
+  --shadow: 0 1px 2px rgba(20, 28, 40, .06), 0 8px 24px -12px rgba(20, 28, 40, .18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101317;
+    --surface: #171b21;
+    --surface-sunken: #1d222a;
+    --fg: #e8ecf1;
+    --fg-muted: #9aa4b2;
+    --fg-faint: #6f7a88;
+    --accent: #6aa6ff;
+    --accent-soft: #17273d;
+    --border: #262d36;
+    --border-strong: #36404d;
+    --code-bg: #1b2028;
+    --code-fg: #dbe3ee;
+    --ok: #6fd3a6;
+    --ok-soft: #142b23;
+    --warn: #e2b45c;
+    --warn-soft: #2b2314;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -12px rgba(0, 0, 0, .6);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #101317;
+  --surface: #171b21;
+  --surface-sunken: #1d222a;
+  --fg: #e8ecf1;
+  --fg-muted: #9aa4b2;
+  --fg-faint: #6f7a88;
+  --accent: #6aa6ff;
+  --accent-soft: #17273d;
+  --border: #262d36;
+  --border-strong: #36404d;
+  --code-bg: #1b2028;
+  --code-fg: #dbe3ee;
+  --ok: #6fd3a6;
+  --ok-soft: #142b23;
+  --warn: #e2b45c;
+  --warn-soft: #2b2314;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -12px rgba(0, 0, 0, .6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 72px;
+}
+
+/* ------------------------------ Шапка ------------------------------ */
+
+.eyebrow {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 10px;
+}
+
+h1 {
+  font-size: clamp(1.85rem, 5vw, 2.5rem);
+  line-height: 1.12;
+  letter-spacing: -.025em;
+  font-weight: 700;
+  margin: 0 0 14px;
+  text-wrap: balance;
+}
+
+.lead {
+  font-size: 1.06rem;
+  color: var(--fg-muted);
+  margin: 0 0 22px;
+  max-width: 60ch;
+  text-wrap: pretty;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.facts li {
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--fg-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------ Разделы ------------------------------ */
+
+section { margin-top: 48px; }
+
+h2 {
+  font-size: 1.28rem;
+  font-weight: 650;
+  letter-spacing: -.015em;
+  margin: 0 0 6px;
+  text-wrap: balance;
+}
+
+.section-note {
+  color: var(--fg-muted);
+  font-size: .94rem;
+  margin: 0 0 20px;
+  max-width: 62ch;
+}
+
+/* ------------------------------ Шаги ------------------------------ */
+
+.steps {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px 20px;
+  box-shadow: var(--shadow);
+}
+
+.step-num {
+  counter-increment: step;
+  grid-row: 1 / span 2;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: .84rem;
+  font-weight: 500;
+  display: grid;
+  place-items: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.step-num::before { content: counter(step); }
+
+.step-body { min-width: 0; }
+
+.step h3 {
+  font-size: 1.02rem;
+  font-weight: 620;
+  margin: 4px 0 10px;
+  letter-spacing: -.01em;
+}
+
+.step p { margin: 0 0 12px; }
+.step p:last-child { margin-bottom: 0; }
+
+.step ol, .step ul { margin: 0 0 12px; padding-left: 20px; }
+.step li { margin-bottom: 6px; }
+.step li:last-child { margin-bottom: 0; }
+
+.optional {
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  padding: 1px 6px;
+  vertical-align: 2px;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+/* ------------------------------ Код ------------------------------ */
+
+pre {
+  margin: 0 0 12px;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 13px 15px;
+  overflow-x: auto;
+  font-size: .845rem;
+  line-height: 1.6;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+pre:last-child { margin-bottom: 0; }
+
+code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .875em;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  border-radius: 4px;
+  padding: 1.5px 5px;
+}
+
+pre code { background: none; padding: 0; font-size: inherit; }
+
+.cmt { color: var(--fg-faint); }
+
+/* ------------------------------ Таблицы ------------------------------ */
+
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  margin: 0 0 14px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: .9rem;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+th {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  white-space: nowrap;
+}
+
+tr:last-child td { border-bottom: 0; }
+
+td:first-child { white-space: nowrap; }
+
+/* ------------------------------ Заметки ------------------------------ */
+
+.note {
+  display: grid;
+  grid-template-columns: 3px 1fr;
+  gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: .9rem;
+  color: var(--fg-muted);
+  margin: 0 0 14px;
+}
+
+.note::before {
+  content: "";
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.note strong { color: var(--fg); font-weight: 600; }
+
+.note.warn::before { background: var(--warn); }
+.note.warn { background: var(--warn-soft); border-color: transparent; }
+.note.ok::before { background: var(--ok); }
+.note.ok { background: var(--ok-soft); border-color: transparent; }
+
+/* ------------------------------ Ошибки ------------------------------ */
+
+.errors {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.err {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 16px;
+}
+
+.err dt {
+  font-weight: 600;
+  font-size: .9rem;
+  color: var(--fg);
+  margin: 0 0 4px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: .82rem;
+  overflow-wrap: anywhere;
+}
+
+.err dd {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: .9rem;
+}
+
+/* ------------------------------ Подвал ------------------------------ */
+
+footer {
+  margin-top: 56px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-faint);
+  font-size: .84rem;
+}
+
+footer p { margin: 0 0 8px; }
+footer p:last-child { margin-bottom: 0; }
+
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+@media (max-width: 460px) {
+  .step {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 16px 16px 18px;
+  }
+  .step-num { grid-row: auto; }
+  .wrap { padding-block: 28px 56px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Инструкция по установке</p>
+    <h1>Запуск Telegram-бота</h1>
+    <p class="lead">
+      От пустой папки до бота, который принимает заявки и складывает их в Google Таблицу.
+      Восемь шагов, из них десять минут уходит на Google Cloud.
+    </p>
+    <ul class="facts">
+      <li>≈ 25 минут</li>
+      <li>Python 3.11+</li>
+      <li>Google Таблица — по желанию</li>
+      <li>Windows · macOS · Linux</li>
+    </ul>
+  </header>
+
+  <section>
+    <h2>Что понадобится</h2>
+    <p class="section-note">Первые три пункта обязательны. Google нужен, только если заявки должны попадать в таблицу.</p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Что</th><th>Зачем</th><th>Где взять</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Python 3.11+</td>
+            <td>Среда для запуска</td>
+            <td><a href="https://www.python.org/downloads/">python.org</a></td>
+          </tr>
+          <tr>
+            <td>Токен бота</td>
+            <td>Связь с Telegram</td>
+            <td><a href="https://t.me/BotFather">@BotFather</a></td>
+          </tr>
+          <tr>
+            <td>Ваш Telegram ID</td>
+            <td>Доступ в админку</td>
+            <td><a href="https://t.me/userinfobot">@userinfobot</a></td>
+          </tr>
+          <tr>
+            <td>Google-таблица</td>
+            <td>Хранение заявок</td>
+            <td><a href="https://sheets.google.com">sheets.google.com</a></td>
+          </tr>
+          <tr>
+            <td>Ключ сервисного аккаунта</td>
+            <td>Доступ бота к таблице</td>
+            <td><a href="https://console.cloud.google.com/">Google Cloud Console</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <div>Без Google Таблицы бот работает полностью. Заявки в этом случае хранятся только в SQLite,
+      а админам всё равно приходят уведомления.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Восемь шагов</h2>
+    <p class="section-note">Шаги 7 и 8 необязательны: таблица и Docker. Их можно пропустить и вернуться позже.</p>
+
+    <ol class="steps">
+
+      <li class="step">
+        <div class="step-num" aria-hidden="true"></div>
+        <div class="step-body">
+          <h3>Создайте бота в Telegram</h3>
+          <ol>
+            <li>Откройте <a href="https://t.me/BotFather">@BotFather</a> и отправьте <code>/newbot</code>.</li>
+            <li>Придумайте имя и username — он должен заканчиваться на <code>bot</code>.</li>
+            <li>Скопируйте токен вида <code>123456789:AAH…</code>.</li>
+          </ol>
+          <div class="note warn">
+            <div>Токен — это пароль от бота. Не публикуйте его и не коммитьте в git.</div>
+          </div>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-num" aria-hidden="true"></div>
+        <div class="step-body">
+          <h3>Узнайте свой Telegram ID</h3>
+          <p>Напишите <a href="https://t.me/userinfobot">@userinfobot</a> — он ответит числом вроде <code>123456789</code>. Это ваш ID для админки.</p>
+          <p>Если администраторов несколько, перечислите ID через запятую:</p>
+          <pre><code>ADMIN_IDS=123456789,987654321</code></pre>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-num" aria-hidden="true"></div>
+        <div class="step-body">
+          <h3>Подготовьте компьютер</h3>
+          <p>Windows, в PowerShell:</p>
+          <pre><code>cd путь\к\проекту
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt</code></pre>
+          <p>macOS и Linux:</p>
+          <pre><code>cd путь/к/проекту
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt</code></pre>
+          <p>Если PowerShell отказывается активировать окружение, разрешите скрипты один раз:</p>
+          <pre><code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code></pre>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-num" aria-hidden="true"></div>
+        <div class="step-body">
+          <h3>Создайте файл <code>.env</code></h3>
+          <p>Скопируйте образец:</p>
+          <pre><code><span class="cmt"># Windows</span>
+Copy-Item .env.example .env
+
+<span class="cmt"># macOS / Linux</span>
+cp .env.example .env</code></pre>
+          <p>Заполните минимум три строки:</p>
+          <pre><code>BOT_TOKEN=123456789:AAHxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ADMIN_IDS=123456789
+DATABASE_URL=sqlite+aiosqlite:///data/bot.db</code></pre>
+          <p>Остальные переменные уже настроены — их можно не трогать.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-num" aria-hidden="true"></div>
+        <div class="step-body">
+          <h3>Проверьте, что всё на месте</h3>
+          <p>Запустите офлайн-тесты. Ни сеть, ни Google им не нужны:</p>
+          <pre><code>python tests/offline_smoke_test.py
+python tests/test_google_sheets.py</code></pre>
+          <div class="note ok">
+            <div>Оба должны закончиться словами «Все проверки пройдены» и «Google Sheets слой работает корректно».
+            Если так — код и зависимости в порядке.</div>
+          </div>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-num" aria-hidden="true"></div>
+        <div class="step-body">
+          <h3>Запустите бота</h3>
+          <pre><code>python main.py</code></pre>
+          <p>В консоли появится:</p>
+          <pre><code>INFO | bot.database.base | Схема базы данных готова
+INFO | main | Бот запускается…
+INFO | main | Google Таблицы не настроены … Работаем без синхронизации.</code></pre>
+          <p>Откройте бота в Telegram и отправьте <code>/start</code> — появится меню. Пройдите сценарий целиком:
+          «Оставить заявку» → услуга → имя → телефон → комментарий → «Отправить».
+          Вам придёт «Заявка №1 отправлена», администратору — уведомление с кнопками статусов.</p>
+          <p>Остановка — <code>Ctrl+C</code> в консоли.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-num" aria-hidden="true"></div>
+        <div class="step-body">
+          <h3>Подключите Google Таблицу<span class="optional">Необязательно</span></h3>
+          <p>Пропустите шаг, если таблица не нужна.</p>
+
+          <p><strong>1. Создайте таблицу.</strong> Откройте <a href="https://sheets.google.com">Google Sheets</a>
+          и создайте пустую таблицу. Заголовки заполнять не нужно — бот создаст их сам при первой заявке.</p>
+
+          <p><strong>2. Создайте сервисный аккаунт.</strong> В <a href="https://console.cloud.google.com/">Google Cloud Console</a>:</p>
+          <ol>
+            <li>Выберите проект или создайте новый.</li>
+            <li>Меню → <strong>APIs &amp; Services</strong> → <strong>Library</strong>.</li>
+            <li>Найдите <strong>Google Sheets API</strong> → <strong>Enable</strong>.</li>
+            <li>Там же найдите <strong>Google Drive API</strong> → <strong>Enable</strong>.</li>
+            <li>Меню → <strong>Credentials</strong> → <strong>Create Credentials</strong> → <strong>Service account</strong>. Имя, например, <code>orders-bot</code>, роль не нужна.</li>
+            <li>Откройте аккаунт → вкладка <strong>Keys</strong> → <strong>Add key</strong> → <strong>Create new key</strong> → <strong>JSON</strong>.</li>
+          </ol>
+          <div class="note">
+            <div>Оба API обязательны. Без Drive API бот не сможет открыть таблицу по ссылке.</div>
+          </div>
+
+          <p><strong>3. Положите ключ в проект.</strong> Переименуйте скачанный файл в <code>credentials.json</code>
+          и положите рядом с <code>main.py</code>.</p>
+
+          <p><strong>4. Дайте боту доступ к таблице.</strong> В <code>credentials.json</code> найдите поле
+          <code>client_email</code> — адрес вида <code>orders-bot@ваш-проект.iam.gserviceaccount.com</code>.
+          В таблице нажмите <strong>Поделиться</strong>, вставьте этот адрес, выберите роль <strong>Редактор</strong>
+          и отправьте.</p>
+          <div class="note warn">
+            <div>Роль «Читатель» не подойдёт: бот должен не только читать, но и писать строки.</div>
+          </div>
+
+          <p><strong>5. Пропишите ссылку в <code>.env</code>.</strong></p>
+          <pre><code>GOOGLE_SHEET_URL=https://docs.google.com/spreadsheets/d/ВАШ_ДЛИННЫЙ_ID/edit
+GOOGLE_CREDENTIALS_PATH=credentials.json</code></pre>
+
+          <p><strong>6. Перезапустите.</strong> В логах должно появиться:</p>
+          <pre><code>INFO | bot.services.google_sheets | Google Sheets: используется лист «Sheet1»
+INFO | main | Google Таблицы подключены: https://docs.google.com/spreadsheets/d/…</code></pre>
+          <p>Оставьте тестовую заявку — она появится в таблице новой строкой.
+          В админке, в разделе «Статистика», будет написано «Google Таблицы: работают».</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-num" aria-hidden="true"></div>
+        <div class="step-body">
+          <h3>Запуск в Docker<span class="optional">Необязательно</span></h3>
+          <p>Нужен установленный Docker Desktop.</p>
+          <ol>
+            <li>Убедитесь, что <code>.env</code> заполнен.</li>
+            <li>Если используете Google — положите <code>credentials.json</code> в корень проекта.</li>
+            <li>Запустите:</li>
+          </ol>
+          <pre><code>docker compose up -d --build
+docker compose logs -f bot</code></pre>
+          <p>Дальше:</p>
+          <pre><code>docker compose restart          <span class="cmt"># после правки .env</span>
+docker compose logs --tail 100 bot
+docker compose down             <span class="cmt"># остановка</span></code></pre>
+          <p>Данные лежат в папке <code>./data</code> и переживают пересоздание контейнера.</p>
+          <div class="note warn">
+            <div><strong>Без Google?</strong> Уберите из <code>docker-compose.yml</code> строку
+            <code>- ./credentials.json:/app/credentials.json:ro</code>. Иначе Docker не запустится:
+            он требует, чтобы файл существовал на хосте.</div>
+          </div>
+        </div>
+      </li>
+
+    </ol>
+  </section>
+
+  <section>
+    <h2>Как пользоваться</h2>
+
+    <h3 style="font-size:.98rem;font-weight:620;margin:22px 0 10px;">Клиент</h3>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Действие</th><th>Что происходит</th></tr></thead>
+        <tbody>
+          <tr><td><code>/start</code></td><td>Приветствие и главное меню</td></tr>
+          <tr><td>Оставить заявку</td><td>Пошаговый диалог из пяти шагов</td></tr>
+          <tr><td>Услуги и цены</td><td>Информация с кнопкой оформления</td></tr>
+          <tr><td>Мои заявки</td><td>Список своих заявок со статусами</td></tr>
+          <tr><td><code>/cancel</code></td><td>Прервать заполнение</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size:.98rem;font-weight:620;margin:22px 0 10px;">Администратор</h3>
+    <p class="section-note">Команда <code>/admin</code>. Доступ есть только у ID из <code>ADMIN_IDS</code>.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Раздел</th><th>Что делает</th></tr></thead>
+        <tbody>
+          <tr><td>Статистика</td><td>Пользователи, заявки за сегодня, за 7 дней и всего, разбивка по статусам</td></tr>
+          <tr><td>Последние заявки</td><td>Список по 5 штук, карточка заявки, смена статуса</td></tr>
+          <tr><td>Рассылка</td><td>Текст или фото с подписью, предпросмотр, отчёт о доставке</td></tr>
+          <tr><td>Ссылка на таблицу</td><td>Прямая ссылка на Google Таблицу</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <div>При смене статуса обновляются и база, и строка в таблице, а клиенту приходит уведомление.
+      Администратор должен хотя бы раз нажать <strong>Start</strong> у бота — иначе Telegram не даст боту
+      написать ему первым.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Если что-то не работает</h2>
+    <p class="section-note">Тексты ошибок бота совпадают с заголовками ниже — ищите по ним.</p>
+
+    <dl class="errors">
+      <div class="err">
+        <dt>Не удалось прочитать конфигурацию … BOT_TOKEN</dt>
+        <dd>Нет файла <code>.env</code> или в нём пустой токен. Скопируйте <code>.env.example</code> в <code>.env</code> и заполните.</dd>
+      </div>
+      <div class="err">
+        <dt>Telegram отклонил BOT_TOKEN (Unauthorized)</dt>
+        <dd>Токен неверный или перевыпущен в BotFather. Скопируйте актуальный заново.</dd>
+      </div>
+      <div class="err">
+        <dt>ZoneInfoNotFoundError: Europe/Moscow</dt>
+        <dd>Не установлен пакет <code>tzdata</code> — на Windows он обязателен. Выполните <code>pip install -r requirements.txt</code>.</dd>
+      </div>
+      <div class="err">
+        <dt>Нет доступа к таблице: выдайте роль «Редактор»</dt>
+        <dd>Сервисный аккаунт не добавлен в «Поделиться», либо выдана роль «Читатель». Заявки при этом не теряются — они в базе.</dd>
+      </div>
+      <div class="err">
+        <dt>Таблица или лист не найдены</dt>
+        <dd>Неверная ссылка в <code>GOOGLE_SHEET_URL</code>. Нужен формат <code>https://docs.google.com/spreadsheets/d/&lt;ID&gt;/edit</code>.</dd>
+      </div>
+      <div class="err">
+        <dt>В проекте Google Cloud не включены Google Sheets API и Google Drive API</dt>
+        <dd>Вернитесь к шагу 7 и включите оба API в Library.</dd>
+      </div>
+      <div class="err">
+        <dt>Заявки есть в базе, но не появляются в таблице</dt>
+        <dd>Проверьте три вещи: ключ лежит рядом с <code>main.py</code>, сервисный аккаунт добавлен в «Поделиться», оба API включены.</dd>
+      </div>
+      <div class="err">
+        <dt>Админ не получает уведомления</dt>
+        <dd>Он не нажимал Start у бота, либо его ID не указан в <code>ADMIN_IDS</code>.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Что где настраивать</h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Что менять</th><th>Где</th></tr></thead>
+        <tbody>
+          <tr><td>Тексты, цены, услуги, подписи кнопок</td><td><code>bot/texts.py</code></td></tr>
+          <tr><td>Название компании</td><td><code>BRAND</code> в <code>bot/texts.py</code></td></tr>
+          <tr><td>Переменные окружения</td><td><code>.env</code></td></tr>
+          <tr><td>Заявок на страницу в админке</td><td><code>ORDERS_PER_PAGE</code> в <code>.env</code></td></tr>
+          <tr><td>Новые статусы заявок</td><td><code>ALL_STATUSES</code> в <code>bot/database/models.py</code> и <code>STATUS_META</code> в <code>bot/texts.py</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <div>В словаре <code>SERVICES</code> меняйте только текст, но не ключи (<code>bot</code>, <code>site</code>,
+      <code>automation</code>, <code>other</code>) — ключи записываются в базу.</div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Проверка перед выкладкой — три команды, все должны пройти без ошибок:</p>
+    <pre><code>python -m compileall -q .
+python tests/offline_smoke_test.py
+python tests/test_google_sheets.py</code></pre>
+    <p>Подробности по устройству проекта — в <code>README.md</code>, эта же инструкция лежит в <code>ЗАПУСК.md</code>.</p>
+  </footer>
+
+</div>

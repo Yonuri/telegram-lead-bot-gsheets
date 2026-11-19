@@ -1,0 +1,43 @@
+# Всё, что не нужно внутри образа.
+# .env и credentials.json подставляются при запуске (env_file / volume),
+# поэтому в образ они попадать не должны.
+.env
+.env.*
+!.env.example
+credentials.json
+credentials*.json
+service-account*.json
+service_account*.json
+*.json.key
+*-credentials.json
+
+data/
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite3-wal
+*.log
+
+.git/
+.gitignore
+.dockerignore
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.vscode/
+.idea/
+
+README.md
+ЗАПУСК.md
+запуск-страница.html
+tests/

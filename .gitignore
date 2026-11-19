@@ -1,0 +1,59 @@
+# ===================== Секреты — никогда не коммитим =====================
+# Файл с токеном бота, ID админов и ссылкой на таблицу
+.env
+.env.*
+# Образец конфигурации коммитить можно и нужно — он без секретов
+!.env.example
+
+# Ключи сервисных аккаунтов Google (приватный ключ внутри!)
+credentials.json
+credentials*.json
+service-account*.json
+service_account*.json
+*.json.key
+*-credentials.json
+
+# ============================== База данных ==============================
+# Локальная БД бота и её служебные файлы (WAL, журналы)
+data/
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite3-wal
+
+# ================================ Python ================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Виртуальные окружения
+.venv/
+venv/
+env/
+ENV/
+
+# Кэши инструментов
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ====================== Редакторы и файлы ОС ======================
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Локальные логи
+*.log

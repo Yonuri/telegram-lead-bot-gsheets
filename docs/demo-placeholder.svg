@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" width="1200" height="620" role="img" aria-label="Место под демонстрацию работы бота">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#17212e"/>
+      <stop offset="1" stop-color="#0d131b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4a9eff"/>
+      <stop offset="1" stop-color="#7bd0ff"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="620" fill="url(#bg)"/>
+
+  <!-- сетка -->
+  <g stroke="#22303f" stroke-width="1" opacity="0.55">
+    <path d="M0 155h1200M0 310h1200M0 465h1200"/>
+    <path d="M300 0v620M600 0v620M900 0v620"/>
+  </g>
+
+  <!-- рамка «экрана записи» -->
+  <rect x="90" y="90" width="1020" height="440" rx="18" fill="none" stroke="#2c3d50" stroke-width="2" stroke-dasharray="10 8"/>
+
+  <!-- кнопка play -->
+  <circle cx="600" cy="270" r="54" fill="none" stroke="url(#accent)" stroke-width="3"/>
+  <path d="M586 244l44 26-44 26z" fill="url(#accent)"/>
+
+  <text x="600" y="378" text-anchor="middle" font-family="Inter, Segoe UI, Arial, sans-serif"
+        font-size="30" font-weight="600" fill="#e8eef6">Здесь будет запись работы бота</text>
+  <text x="600" y="418" text-anchor="middle" font-family="Inter, Segoe UI, Arial, sans-serif"
+        font-size="19" fill="#8b9bb0">Положите GIF в docs/demo.gif и замените путь в README</text>
+
+  <text x="600" y="500" text-anchor="middle" font-family="JetBrains Mono, Consolas, monospace"
+        font-size="15" fill="#5d6f85">заявка → Google Таблица → уведомление админу → смена статуса</text>
+</svg>
